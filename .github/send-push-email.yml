@@ -1,0 +1,34 @@
+name: Shared Push Email Notification
+
+on:
+  workflow_call:
+    inputs:
+      recipients:
+        required: true
+        type: string
+        description: "Comma-separated list of recipient email addresses"
+
+jobs:
+  send-email:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send email notification
+        uses: dawidd6/action-send-mail@v3
+        with:
+          # Uses the organization-wide secrets automatically
+          server_address: ${{ secrets.MAIL_SERVER }}
+          server_port: ${{ secrets.MAIL_PORT }}
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+
+          subject: "Push in ${{ github.repository }} (${{ github.ref_name }})"
+          to: ${{ inputs.recipients }}
+          from: "GitHub Actions <no-reply@example.com>"
+          
+          body: |
+            A new push occurred in ${{ github.repository }}.
+            
+            Branch/Ref: ${{ github.ref }}
+            Pushed by: ${{ github.actor }}
+            Commit Message: ${{ github.event.head_commit.message }}
+            View Commit: ${{ github.event.head_commit.url }}
